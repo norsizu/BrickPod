@@ -10,7 +10,7 @@ BrickPod 把它搬到了 Mac 桌面上：窗口本身就是一台 iPod，悬浮�
 
 ## 下载安装
 
-1. 在 [Releases](../../releases/latest) 下载 `BrickPod.zip`，解压
+1. 在 [Releases](https://github.com/norsizu/BrickPod/releases/latest) 下载 `BrickPod.zip`，解压
 2. 把 BrickPod.app 拖进「应用程序」
 3. 第一次打开会提示无法验证开发者（App 没有经过 Apple 公证）：
    右键 App →「打开」；macOS 15 及以上要到「系统设置 → 隐私与安全性」底部点「仍要打开」
