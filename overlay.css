@@ -1,0 +1,72 @@
+/* overlay.css — 本地净化层（我加的，非 Apple 代码）
+   作用：隐藏侧栏 / 404 文案 / 底部播放条 / 推广横幅 / 地区选择器，
+   只保留居中的 iPod。原始构建产物未做任何修改，删除本文件即恢复原样。 */
+
+/* ---- 1. 侧边栏：列宽压成 0 ---- */
+@media (min-width: 484px) {
+  .app-container {
+    grid-template-columns: 0 minmax(0, 1fr) !important;
+  }
+}
+.navigation,
+.navigation + *,
+[data-testid="app-navigation"],
+[class*="navigation"] > .navigation__content {
+  display: none !important;
+}
+
+/* 桌面布局给侧栏预留的 260px 内边距，隐藏侧栏后要清零 */
+#scrollable-page {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+}
+
+/* ---- 2. 顶部/底部推广：upsell 横幅 + 地区选择器 ---- */
+.upsell-banner,
+[data-testid="upsell-banner"],
+.footer-wrapper,
+.footer-contents,
+.footer-body,
+.footer-secondary-slot,
+[class*="locale-switcher"],
+[data-testid="locale-switcher"] {
+  display: none !important;
+}
+
+/* ---- 3. 底部播放器条（音量/播放列表控件，未接功能） ---- */
+.chrome-player,
+.player-bar,
+.chrome-volume__button,
+[class*="player-chrome"],
+[data-testid="chrome-volume-button-wrapper"],
+[data-testid="player-bar"] {
+  display: none !important;
+}
+
+/* ---- 4. 404 文案区：标题 / 副标题 / Apple Music 图标 / 面包屑 ---- */
+.music-message,
+.error-page-container .app-icon,
+.error-page-container .links,
+.error-page-container .link,
+.link-box__chevron {
+  display: none !important;
+}
+
+/* ---- 5. iPod 居中占满 ---- */
+.error-page-content {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+.ipod-container {
+  width: 100% !important;
+  max-width: 900px;
+  margin: 0 auto; /* 关键：限制宽度后居中，否则盒子左贴边 */
+  padding-bottom: 40px !important;
+}
+
+/* ---- 6. 纯错误兜底页（万一走到非 iPod 分支也不显示干瘪文案） ---- */
+.page-error {
+  display: none !important;
+}

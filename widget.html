@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>iPod</title>
+<style>
+  /* widget.html — 本地宿主页（非 Apple 代码），只负责挂载原版 web-music-ipod 组件 */
+  @font-face {
+    font-family: "Adobe Garamond Pro";
+    font-style: normal;
+    font-weight: 400;
+    src: url(/assets/fonts/404/ipod/AGaramondPro-Regular.woff2) format("woff2");
+    font-display: swap;
+  }
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff; /* 与官网 404 页底色一致 */
+    overflow: hidden;
+  }
+  web-music-ipod {
+    width: min(46vh, 88vw);
+    filter: drop-shadow(0 18px 40px rgba(20, 24, 40, .28));
+  }
+</style>
+  <script src="/ipod-cjk.js"></script>
+</head>
+<body>
+  <!-- 注意：不要设置 locale 属性！它是对象属性 {storefront, language}，
+       字符串会覆盖默认值导致 storefront 变 undefined。不设 = 默认 us/en-US -->
+  <web-music-ipod></web-music-ipod>
+    <script type="module" src="/includes/ipod/web-music-ipod.esm.js"></script>
+</body>
+</html>

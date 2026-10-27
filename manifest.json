@@ -1,0 +1,34 @@
+{
+    "name": "Apple Music",
+    "short_name": "Apple Music",
+    "start_url": "/",
+    "scope": "/",
+    "icons": [
+        {
+            "src": "assets/app-icons/pwa-manifest/music-icon_192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "assets/app-icons/pwa-manifest/music-icon_384.png",
+            "sizes": "384x384",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "assets/app-icons/pwa-manifest/music-icon_512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "assets/app-icons/pwa-manifest/music-icon_1024.png",
+            "sizes": "1024x1024",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "background_color": "#ffffff",
+    "display": "standalone"
+}

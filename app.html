@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>BrickPod</title>
+<script src="/ipod-cjk.js"></script>
+<style>
+  /* app.html — 原生 App 专用宿主页（非 Apple 代码）。
+     配合无边框透明窗口：窗口本身就是 iPod，四周无白底、无倒影。 */
+  html, body { height: 100%; margin: 0; background: transparent; }
+  body { overflow: hidden; }
+  /* 组件缩放是阶梯式容器查询（宿主 ≥440px 才是 scale=1 档、设备 415px 封顶；
+     且 WebKit 里容器查询按 zoom 后宽度算，zoom 方案死锁）。
+     宿主固定 440px 踩死 scale=1 档，#fit 用 transform: scale 缩放——
+     transform 不参与布局，容器查询永远看到 440。 */
+  #fit { position: absolute; left: 14px; top: 14px; width: 440px; transform-origin: 0 0;
+         opacity: 0; transition: opacity .18s ease-out; }
+  /* 缩放到位前不显示：否则启动时先按 1.0 原尺寸画一帧（窗口只露出一部分），再突然缩小 */
+  #fit.ready { opacity: 1; }
+  web-music-ipod { display: block; width: 440px; }
+  /* 整机拖动：机身抓手，点控轮手指 */
+  #fit { cursor: grab; }
+  #fit.on-control { cursor: pointer; }
+</style>
+</head>
+<body>
+  <!-- 同 widget.html：不要设置 locale 属性，默认 us/en-US -->
+  <div id="fit"><web-music-ipod></web-music-ipod></div>
+  <script>
+    // App 模式：去掉组件自带的桌面倒影（两处，都在 shadow DOM 里）：
+    //   1. .ipod-container 的 -webkit-box-reflect
+    //   2. .ipod-shadow-inner::before —— 设备正下方的 200px 黑色渐变块（translateY(100%)）
+    // 不改 Apple 代码，沿用 ipod-cjk.js 的 shadow root 注入套路。
+    (function () {
+      var CSS = '.ipod-container{-webkit-box-reflect:none !important}'
+        + '.ipod-shadow-inner::before{display:none !important}'
+        // 光标统一由外层 #fit 决定（机身抓手 / 滚轮手指），见下方整机拖动
+        + '.ipod, .ipod *{cursor:inherit !important;-webkit-user-select:none;user-select:none}';
+      // 改名：主菜单标题和 About 第一行在组件里写死成 "iPod"（不走多语言文本），
+      // 文字节点完全等于 "iPod" 时换成 BrickPod；组件重新渲染时由 observer 再换
+      var BRAND = 'BrickPod';
+      function rebrand(root) {
+        var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), n;
+        while ((n = w.nextNode())) if (n.data === 'iPod') n.data = BRAND;
+      }
+      function inject(el) {
+        if (!el || !el.shadowRoot) return false;
+        if (!el.__appStyle) {
+          var s = document.createElement('style');
+          s.textContent = CSS;
+          el.shadowRoot.appendChild(s);
+          el.__appStyle = s;
+        }
+        if (!el.__brandObs) {
+          rebrand(el.shadowRoot);
+          el.__brandObs = new MutationObserver(function () { rebrand(el.shadowRoot); });
+          el.__brandObs.observe(el.shadowRoot, { childList: true, subtree: true, characterData: true });
+        }
+        return true;
+      }
+      function check() {
+        var els = document.querySelectorAll('web-music-ipod');
+        var ready = els.length > 0;
+        els.forEach(function (el) { if (!inject(el)) ready = false; });
+        return ready;
+      }
+      if (window.customElements && customElements.whenDefined) {
+        customElements.whenDefined('web-music-ipod').then(check).catch(function () {});
+      }
+      var timer = setInterval(function () { if (check()) clearInterval(timer); }, 250);
+      setTimeout(function () { clearInterval(timer); }, 30000);
+    })();
+
+    // 原生侧驱动的缩放 API：window.__ipod
+    // PAD = 窗口四周给 CSS 投影留的呼吸边（native 侧要同步这个值）
+    (function () {
+      var PAD = 14;
+      var fit = document.getElementById('fit');
+      var totalH = 0, contH = 692, k = 1;
+      function measure() {
+        if (totalH < 600) totalH = fit.offsetHeight || 0;
+        return totalH;
+      }
+      function measureContainer() {
+        try {
+          var el = document.querySelector('web-music-ipod');
+          var c = el && el.shadowRoot && el.shadowRoot.querySelector('.ipod-container');
+          if (c) contH = c.offsetHeight || contH;
+        } catch (e) {}
+      }
+      window.__ipod = {
+        ready: function () { measure(); return totalH >= 600; },
+        totalH: function () { return measure(); },
+        apply: function (scale) {
+          k = scale;
+          fit.style.transform = 'scale(' + k + ')';
+          // 设备下方有倒影区布局高度（已隐藏）：垂直居中补偿
+          measureContainer();
+          var extra = Math.max(0, totalH - contH) / 2;
+          fit.style.top = (PAD + extra * k) + 'px';
+        },
+        extent: function () {
+          return { w: Math.ceil(440 * k + PAD * 2), h: Math.ceil(measure() * k + PAD * 2) };
+        }
+      };
+      // 组件一长出来就按原生预先注入的缩放值排好，然后再显示
+      function firstFit() {
+        if (measure() < 600) return false;
+        window.__ipod.apply(window.__ipodInitialScale || 1);
+        fit.classList.add('ready');
+        console.log('[fit] 首次显示 scale=' + (window.__ipodInitialScale || 1) + ' transform=' + fit.style.transform);
+        return true;
+      }
+      var timer2 = setInterval(function () { if (firstFit()) clearInterval(timer2); }, 50);
+      setTimeout(function () { clearInterval(timer2); }, 30000);
+    })();
+  </script>
+  <script>
+    // 整机拖动：按在机身上（点控轮圆以外，屏幕也算机身）就让原生侧拖窗口；
+    // 点控轮是 280×280 的方块，但只有圆内才是控件，所以用几何判定而不是看元素
+    (function () {
+      var fit = document.getElementById('fit');
+      function wheel() {
+        var el = document.querySelector('web-music-ipod');
+        return el && el.shadowRoot && el.shadowRoot.querySelector('.click-wheel');
+      }
+      function onControl(x, y) {
+        var w = wheel();
+        if (!w) return false;
+        var r = w.getBoundingClientRect();      // 已包含 #fit 的 scale
+        var dx = x - (r.left + r.width / 2), dy = y - (r.top + r.height / 2);
+        return dx * dx + dy * dy <= (r.width / 2) * (r.width / 2);
+      }
+      document.addEventListener('mousemove', function (e) {
+        fit.classList.toggle('on-control', onControl(e.clientX, e.clientY));
+      }, true);
+      document.addEventListener('mousedown', function (e) {
+        if (e.button !== 0 || onControl(e.clientX, e.clientY)) return;
+        try { window.webkit.messageHandlers.drag.postMessage(1); } catch (err) {}
+      }, true);
+    })();
+  </script>
+  <script type="module" src="/includes/ipod/web-music-ipod.esm.js"></script>
+</body>
+</html>

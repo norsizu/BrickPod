@@ -1,0 +1,10 @@
+# 个人音乐（有版权，也太大）
+/Music/
+/music/
+# 个人曲库清单（make-library.py 生成，指向本机音乐文件）；Apple 原版 en-US.json.orig 保留
+/includes/ipod/data/us/en-US.json
+# 构建产物（打包好的 App 走 GitHub Release）
+/mac-app/build/
+/mac-app/BrickPod.app/
+/mac-app/*.zip
+.DS_Store
