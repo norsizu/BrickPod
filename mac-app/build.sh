@@ -50,6 +50,8 @@ echo "==> 拷贝网页资源 (assets/includes...)..."
 # 由 App 内导入（菜单 ⌘O / 拖拽），重建 App 不丢歌
 rsync -a --delete \
   --exclude '.DS_Store' \
+  --exclude '.git/' \
+  --exclude '.gitignore' \
   --exclude 'mac-app/' \
   --exclude 'server.py' \
   --exclude 'make-library.py' \
