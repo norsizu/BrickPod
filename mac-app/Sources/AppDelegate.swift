@@ -789,8 +789,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
     private func debugSnapshot() {
         guard ProcessInfo.processInfo.environment["IPOD_SNAPSHOT"] != nil else { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            // 关闭钮平时只在悬停时浮现，截图时强制显示，方便核对位置
-            self.content.closeBtn.alphaValue = 1
+            // 关闭钮平时只在悬停时浮现；IPOD_SNAPSHOT_CLOSE=1 时强制显示，方便核对位置
+            let showClose = ProcessInfo.processInfo.environment["IPOD_SNAPSHOT_CLOSE"] != nil
+            self.content.closeBtn.alphaValue = showClose ? 1 : 0
             let order = self.content.subviews.map { String(describing: type(of: $0)) }
             print("[snap] z-order(底→顶) \(order) closeBtn=\(NSStringFromRect(self.content.closeBtn.frame))")
             self.webView.takeSnapshot(with: nil) { image, _ in
