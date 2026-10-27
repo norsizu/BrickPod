@@ -57,6 +57,7 @@ rsync -a --delete \
   --exclude 'make-library.py' \
   --exclude '*.command' \
   --exclude 'README.md' \
+  --exclude 'docs/' \
   --exclude '*.orig' \
   --exclude 'Music/' \
   --exclude 'music/' \
